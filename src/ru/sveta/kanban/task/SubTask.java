@@ -1,3 +1,5 @@
+package ru.sveta.kanban.task;
+
 public class SubTask extends Task{
 
     private Epic epic;

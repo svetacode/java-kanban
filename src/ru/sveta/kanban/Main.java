@@ -1,3 +1,12 @@
+package ru.sveta.kanban;
+
+import ru.sveta.kanban.service.TaskManager;
+import ru.sveta.kanban.task.Epic;
+import ru.sveta.kanban.task.SubTask;
+import ru.sveta.kanban.task.Task;
+import ru.sveta.kanban.task.TaskStatus;
+import ru.sveta.kanban.task.TaskType;
+
 import java.util.Set;
 
 public class Main {

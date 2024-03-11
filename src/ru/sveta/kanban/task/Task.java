@@ -1,3 +1,5 @@
+package ru.sveta.kanban.task;
+
 import java.util.Objects;
 
 public class Task {
