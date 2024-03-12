@@ -26,14 +26,14 @@ public class Main {
 
         Epic epic1 = new Epic("Эпик 1", "Описание Эпика 1");
         taskManager.createEpic(epic1);
-        SubTask epic1SubTask1 = new SubTask("Подзадача 1.1", "Описание подзадачи 1.1", TaskStatus.NEW, epic1);
+        SubTask epic1SubTask1 = new SubTask("Подзадача 1.1", "Описание подзадачи 1.1", TaskStatus.NEW, epic1.getId());
         taskManager.createSubTask(epic1SubTask1);
-        SubTask epic1SubTask2 = new SubTask("Подзадача 1.2", "Описание подзадачи 1.2", TaskStatus.DONE, epic1);
+        SubTask epic1SubTask2 = new SubTask("Подзадача 1.2", "Описание подзадачи 1.2", TaskStatus.DONE, epic1.getId());
         taskManager.createSubTask(epic1SubTask2);
 
         Epic epic2 = new Epic("Эпик 2", "Описание Эпика 2");
         taskManager.createEpic(epic2);
-        SubTask epic2SubTask1 = new SubTask("Подзадача 2.1", "Описание подзадачи 2.1", TaskStatus.NEW, epic2);
+        SubTask epic2SubTask1 = new SubTask("Подзадача 2.1", "Описание подзадачи 2.1", TaskStatus.NEW, epic2.getId());
         taskManager.createSubTask(epic2SubTask1);
 
         printAllTasks(taskManager);
@@ -50,6 +50,13 @@ public class Main {
         taskManager.updateTask(task1);
 
         System.out.println("\nПроизошло обновление данных\n");
+
+        printAllTasks(taskManager);
+
+        System.out.println("\nПроизошло удаление данных\n");
+
+        taskManager.deleteTaskByTypeAndId(TaskType.TASK, task2.getId());
+        taskManager.deleteTaskByTypeAndId(TaskType.EPIC, epic2.getId());
 
         printAllTasks(taskManager);
     }

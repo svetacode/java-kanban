@@ -2,15 +2,21 @@ package ru.sveta.kanban.task;
 
 public class SubTask extends Task{
 
-    private Epic epic;
+    private Integer epicId;
 
-    public SubTask(String title, String description, TaskStatus status, Epic epic) {
+    public SubTask(String title, String description, TaskStatus status, Integer epicId) {
         super(title, description, status);
-        this.epic = epic;
+        this.epicId = epicId;
     }
 
 
-    public Epic getEpic() {
-        return epic;
+    public Integer getEpicId() {
+        return epicId;
     }
+
+    @Override
+    public TaskType getTaskType(){
+        return TaskType.SUB_TASK;
+    }
+
 }

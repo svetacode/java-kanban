@@ -3,6 +3,7 @@ package ru.sveta.kanban.service;
 import ru.sveta.kanban.task.Epic;
 import ru.sveta.kanban.task.SubTask;
 import ru.sveta.kanban.task.Task;
+import ru.sveta.kanban.task.TaskStatus;
 import ru.sveta.kanban.task.TaskType;
 
 import java.util.*;
@@ -10,16 +11,10 @@ import java.util.*;
 public class TaskManager {
     private int nextTaskId;
 
-    private final Map<TaskType, Set<Task>> tasksByType;
     private final Map<Integer, Task> tasksById;
 
     public TaskManager() {
-        tasksByType = new HashMap<>();
-        for (TaskType taskType : TaskType.values()) {
-            tasksByType.put(taskType, new HashSet<>());
-        }
         tasksById = new HashMap<>();
-
         nextTaskId = 1;
     }
 
@@ -30,7 +25,13 @@ public class TaskManager {
      * @return список задач или пустой список если их нет
      */
     public Set<Task> getTaskListByType(TaskType taskType) {
-        return tasksByType.get(taskType);
+        Set<Task> taskList = new HashSet<>();
+        for (Task task : tasksById.values()) {
+            if (task.getTaskType().equals(taskType)) {
+                taskList.add(task);
+            }
+        }
+        return taskList;
     }
 
     public Task getTaskById(int taskId) {
@@ -58,7 +59,6 @@ public class TaskManager {
         nextTaskId++;
 
         tasksById.put(newTask.getId(), newTask);
-        tasksByType.get(TaskType.TASK).add(newTask);
 
         return newTask.getId();
     }
@@ -68,21 +68,25 @@ public class TaskManager {
         nextTaskId++;
 
         tasksById.put(newEpic.getId(), newEpic);
-        tasksByType.get(TaskType.EPIC).add(newEpic);
 
         return newEpic.getId();
     }
 
     public int createSubTask(SubTask newSubTask) {
-        newSubTask.setId(nextTaskId);
-        nextTaskId++;
+        if (tasksById.containsKey(newSubTask.getEpicId())) {
+            Epic epic = (Epic)tasksById.get(newSubTask.getEpicId());
+            newSubTask.setId(nextTaskId);
+            nextTaskId++;
 
-        tasksById.put(newSubTask.getId(), newSubTask);
-        tasksByType.get(TaskType.SUB_TASK).add(newSubTask);
+            tasksById.put(newSubTask.getId(), newSubTask);
 
-        newSubTask.getEpic().addSubTask(newSubTask);
+            epic.addSubTask(newSubTask);
+            updateEpicStatus(epic);
 
-        return newSubTask.getId();
+            return newSubTask.getId();
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -91,27 +95,43 @@ public class TaskManager {
      * @param taskType тип задач для удаления
      */
     public void deleteAllTaskByType(TaskType taskType) {
-        switch (taskType) {
-            case TASK -> {
-                tasksByType.get(taskType).clear();
-            }
-            case EPIC -> {
-                //Для эпиков надо удалить все связанные подзадачи
-                for (Task task : tasksByType.get(taskType)) {
-                    Epic epic = (Epic) task;
-                    Set<SubTask> epicSubTasks = epic.getSubTasks();
-                    tasksByType.get(TaskType.SUB_TASK).removeAll(epicSubTasks);
+        for (Task task : tasksById.values()) {
+            if (task.getTaskType().equals(taskType)) {
+                if (task.getTaskType().equals(TaskType.EPIC)){
+                    // Надо удалить все подзадачи
+                    Epic epic = (Epic)task;
+                    Set<Integer> subtaskIds = epic.getSubTaskIds();
+                    for (Integer subtaskId : subtaskIds) {
+                        tasksById.remove(subtaskId);
+                    }
                 }
-                tasksByType.get(TaskType.EPIC).clear();
+                tasksById.remove(task.getId());
             }
-            case SUB_TASK -> {
-                //Если удаляем под задачи, надо удалить их из эпиков
-                for (Task task : tasksByType.get(TaskType.EPIC)) {
-                    Epic epic = (Epic) task;
-                    epic.removeAllSubTasks();
+        }
+    }
+
+    private void updateEpicStatus(Epic epic) {
+        Set<Integer> subTaskIds = epic.getSubTaskIds();
+        if (!subTaskIds.isEmpty()) {
+            int newList = 0;
+            int doneList = 0;
+            for (Integer subTaskId : subTaskIds) {
+                SubTask subTask = (SubTask)tasksById.get(subTaskId);
+                if (subTask.getStatus().equals(TaskStatus.NEW)) {
+                    newList++;
+                } else if (subTask.getStatus().equals(TaskStatus.DONE)) {
+                    doneList++;
                 }
-                tasksByType.get(TaskType.SUB_TASK).clear();
             }
+            if (newList == subTaskIds.size()) {
+                epic.setStatus(TaskStatus.NEW);
+            } else if (doneList == subTaskIds.size()) {
+                epic.setStatus(TaskStatus.DONE);
+            } else {
+                epic.setStatus(TaskStatus.IN_PROGRESS);
+            }
+        } else {
+            epic.setStatus(TaskStatus.NEW);
         }
     }
 
@@ -126,32 +146,34 @@ public class TaskManager {
         if (task != null) {
             switch (taskType) {
                 case TASK -> {
-                    tasksByType.get(taskType).remove(task);
+                    tasksById.remove(taskId);
                 }
                 case EPIC -> {
                     //Для эпиков надо удалить все связанные подзадачи
                     Epic epic = (Epic) task;
-                    Set<SubTask> epicSubTasks = epic.getSubTasks();
-                    tasksByType.get(TaskType.SUB_TASK).removeAll(epicSubTasks);
-                    tasksByType.get(taskType).remove(task);
+                    Set<Integer> epicSubTasks = epic.getSubTaskIds();
+                    for (Integer subTaskId : epicSubTasks) {
+                        tasksById.remove(subTaskId);
+                    }
+                    tasksById.remove(taskId);
                 }
                 case SUB_TASK -> {
                     SubTask subTask = (SubTask) task;
-                    Epic epic = subTask.getEpic();
+                    Integer epicId = subTask.getEpicId();
+                    Epic epic = (Epic)tasksById.get(epicId);
                     epic.removeSubTask(subTask);
-                    tasksByType.get(TaskType.SUB_TASK).remove(task);
+                    updateEpicStatus(epic);
+                    tasksById.remove(taskId);
                 }
             }
         }
-        tasksById.remove(taskId);
-
 
     }
 
     public void updateTask(Task task) {
-        tasksById.put(task.getId(), task);
-        tasksByType.get(TaskType.TASK).remove(task);
-        tasksByType.get(TaskType.TASK).add(task);
+        if (tasksById.containsKey(task.getId())) {
+            tasksById.put(task.getId(), task);
+        }
     }
 
     /**
@@ -160,10 +182,12 @@ public class TaskManager {
      * @param subTask
      */
     public void updateSubTask(SubTask subTask) {
+      if (tasksById.containsKey(subTask.getId())) {
         tasksById.put(subTask.getId(), subTask);
-        tasksByType.get(TaskType.SUB_TASK).remove(subTask);
-        tasksByType.get(TaskType.SUB_TASK).add(subTask);
-        subTask.getEpic().updateSubTask(subTask);
+        Epic epic = (Epic)tasksById.get(subTask.getEpicId());
+        epic.updateSubTask(subTask);
+        updateEpicStatus(epic);
+      }
     }
 
     /**
@@ -172,14 +196,19 @@ public class TaskManager {
      * @param epic
      */
     public void updateEpic(Epic epic) {
+      if (tasksById.containsKey(epic.getId())) {
         tasksById.put(epic.getId(), epic);
-        tasksByType.get(TaskType.EPIC).remove(epic);
-        tasksByType.get(TaskType.EPIC).add(epic);
+      }
     }
 
     public Set<SubTask> getEpicSubTasksByEpicId(int epicId) {
         if (tasksById.containsKey(epicId)) {
-            return ((Epic) tasksById.get(epicId)).getSubTasks();
+          Set<Integer> subTaskIds = ((Epic) tasksById.get(epicId)).getSubTaskIds();
+          Set<SubTask> subTasks = new HashSet<>();
+          for (Integer subTaskId : subTaskIds) {
+            subTasks.add((SubTask)tasksById.get(subTaskId));
+          }
+          return subTasks;
         } else {
             return Collections.emptySet();
         }

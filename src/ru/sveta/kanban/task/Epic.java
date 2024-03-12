@@ -1,68 +1,42 @@
 package ru.sveta.kanban.task;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Epic extends Task {
 
-    private final Set<SubTask> subTasks = new HashSet<>();
+  private final Set<Integer> subTaskIds = new HashSet<>();
 
-    public Epic(String title, String description) {
-        super(title, description, TaskStatus.NEW);
-    }
+  public Epic(String title, String description) {
+    super(title, description, TaskStatus.NEW);
+  }
 
-    public Set<SubTask> getSubTasks() {
-        return subTasks;
-    }
+  public Set<Integer> getSubTaskIds() {
+    return subTaskIds;
+  }
 
-    /**
-     * Удаление под задач и обновление статуса
-     */
-    public void removeAllSubTasks() {
-        subTasks.clear();
-        updateEpicStatus();
-    }
+  /**
+   * Удаление под задач и обновление статуса
+   */
+  public void removeAllSubTasks() {
+    subTaskIds.clear();
+  }
 
-    public void addSubTask(SubTask newSubTask) {
-        subTasks.add(newSubTask);
-        updateEpicStatus();
-    }
+  public void addSubTask(SubTask newSubTask) {
+    subTaskIds.add(newSubTask.getId());
+  }
 
-    public void updateSubTask(SubTask subTask) {
-        subTasks.remove(subTask);
-        subTasks.add(subTask);
-        updateEpicStatus();
-    }
+  public void updateSubTask(SubTask subTask) {
+    subTaskIds.remove(subTask.getId());
+    subTaskIds.add(subTask.getId());
+  }
 
-    private void updateEpicStatus() {
-        if (!subTasks.isEmpty()) {
-            List<Integer> newList = new ArrayList<>();
-            List<Integer> doneList = new ArrayList<>();
-            for (SubTask subTask : subTasks) {
-                if (subTask.getStatus().equals(TaskStatus.NEW)) {
-                    newList.add(subTask.getId());
-                } else if (subTask.getStatus().equals(TaskStatus.DONE)) {
-                    doneList.add(subTask.getId());
-                }
-            }
+  public void removeSubTask(SubTask subTask) {
+    subTaskIds.remove(subTask.getId());
+  }
 
-            if (newList.size() == subTasks.size()) {
-                status = TaskStatus.NEW;
-            } else if (doneList.size() == subTasks.size()) {
-                status = TaskStatus.DONE;
-            } else {
-                status = TaskStatus.IN_PROGRESS;
-            }
-        } else {
-            status = TaskStatus.NEW;
-        }
-
-    }
-
-    public void removeSubTask(SubTask subTask) {
-        subTasks.remove(subTask);
-        updateEpicStatus();
-    }
+  @Override
+  public TaskType getTaskType() {
+    return TaskType.EPIC;
+  }
 }
