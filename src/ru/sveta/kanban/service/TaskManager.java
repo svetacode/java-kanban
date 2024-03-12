@@ -182,10 +182,12 @@ public class TaskManager {
      * @param subTask
      */
     public void updateSubTask(SubTask subTask) {
-      if (tasksById.containsKey(subTask.getId())) {
+      if (
+          (tasksById.containsKey(subTask.getId())) &&
+          ((SubTask)tasksById.get(subTask.getId())).getEpicId().equals(subTask.getEpicId())
+      ){
         tasksById.put(subTask.getId(), subTask);
         Epic epic = (Epic)tasksById.get(subTask.getEpicId());
-        epic.updateSubTask(subTask);
         updateEpicStatus(epic);
       }
     }
@@ -197,7 +199,9 @@ public class TaskManager {
      */
     public void updateEpic(Epic epic) {
       if (tasksById.containsKey(epic.getId())) {
-        tasksById.put(epic.getId(), epic);
+          Epic epicOld = (Epic)tasksById.get(epic.getId());
+          epicOld.setDescription(epic.getDescription());
+          epicOld.setTitle(epic.getTitle());
       }
     }
 
