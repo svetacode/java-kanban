@@ -1,5 +1,6 @@
 package ru.sveta.kanban;
 
+import ru.sveta.kanban.service.InMemoryTaskManager;
 import ru.sveta.kanban.service.TaskManager;
 import ru.sveta.kanban.task.Epic;
 import ru.sveta.kanban.task.SubTask;
@@ -12,7 +13,7 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = new InMemoryTaskManager();
         System.out.println("Поехали!");
         testTaskManager(taskManager);
     }
