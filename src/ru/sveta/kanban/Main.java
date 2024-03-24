@@ -1,5 +1,6 @@
 package ru.sveta.kanban;
 
+import java.util.Collection;
 import ru.sveta.kanban.service.ManagerFactory;
 import ru.sveta.kanban.service.TaskManager;
 import ru.sveta.kanban.task.Epic;
@@ -22,6 +23,7 @@ public class Main {
     private static void testTaskManager(TaskManager taskManager) {
         Task task1 = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
         taskManager.createTask(task1);
+        taskManager.getTaskById(task1.getId());
 
         Task task2 = new Task("Задача 2", "Описание задачи 2", TaskStatus.NEW);
         taskManager.createTask(task2);
@@ -61,6 +63,8 @@ public class Main {
         taskManager.deleteTaskByTypeAndId(TaskType.EPIC, epic2.getId());
 
         printAllTasks(taskManager);
+
+        printTaskHistory(taskManager);
     }
 
     private static void printAllTasks(TaskManager taskManager) {
@@ -72,7 +76,7 @@ public class Main {
         printTaskList(taskManager.getTaskListByType(TaskType.SUB_TASK));
     }
 
-    private static void printTaskList(Set<Task> taskListByType) {
+    private static void printTaskList(Collection<Task> taskListByType) {
         for (Task task: taskListByType){
             System.out.printf("\t %s - %s - %s [%s] %n",
                     task.getId(),
@@ -81,6 +85,11 @@ public class Main {
                     task.getStatus()
             );
         }
+    }
+
+    private static void printTaskHistory(TaskManager taskManager) {
+        System.out.println("Список просмотренных задач:");
+        printTaskList(taskManager.getViewHistory());
     }
 }
 

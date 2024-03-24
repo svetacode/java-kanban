@@ -1,5 +1,6 @@
 package ru.sveta.kanban.service;
 
+import java.util.List;
 import java.util.Set;
 import ru.sveta.kanban.task.Epic;
 import ru.sveta.kanban.task.SubTask;
@@ -40,4 +41,10 @@ public interface TaskManager {
   void updateEpic(Epic epic);
 
   Set<SubTask> getEpicSubTasksByEpicId(int epicId);
+
+  /**
+   * История просмотр задач
+   * @return возвращает последние 10 просмотренных задачи
+   */
+  List<Task> getViewHistory();
 }

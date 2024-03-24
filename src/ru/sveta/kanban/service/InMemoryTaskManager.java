@@ -3,6 +3,8 @@ package ru.sveta.kanban.service;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import ru.sveta.kanban.task.Epic;
@@ -17,9 +19,12 @@ public class InMemoryTaskManager implements TaskManager {
 
   private final Map<Integer, Task> tasksById;
 
+  private final LinkedList<Integer> taskViewHistory;
+
   public InMemoryTaskManager() {
     tasksById = new HashMap<>();
     nextTaskId = 1;
+    taskViewHistory = new LinkedList<>();
   }
 
   /**
@@ -41,13 +46,19 @@ public class InMemoryTaskManager implements TaskManager {
 
   @Override
   public Task getTaskById(int taskId) {
-    return tasksById.get(taskId);
+    if (isTaskExist(taskId)){
+      addTaskToViewHistory(taskId);
+      return tasksById.get(taskId);
+    } else {
+      return null;
+    }
   }
 
   @Override
   public SubTask getSubTaskById(int subTaskId) {
-    if (tasksById.containsKey(subTaskId)) {
-      return (SubTask) tasksById.get(subTaskId);
+    if (isTaskExist(subTaskId)){
+      addTaskToViewHistory(subTaskId);
+      return (SubTask)tasksById.get(subTaskId);
     } else {
       return null;
     }
@@ -55,8 +66,9 @@ public class InMemoryTaskManager implements TaskManager {
 
   @Override
   public Epic getEpicById(int epicId) {
-    if (tasksById.containsKey(epicId)) {
-      return (Epic) tasksById.get(epicId);
+    if (isTaskExist(epicId)){
+      addTaskToViewHistory(epicId);
+      return (Epic)tasksById.get(epicId);
     } else {
       return null;
     }
@@ -211,6 +223,14 @@ public class InMemoryTaskManager implements TaskManager {
   }
 
   @Override
+  public List<Task> getViewHistory() {
+    return taskViewHistory.stream()
+        .limit(10)
+        .map(tasksById::get)
+        .toList();
+  }
+
+  @Override
   public void updateEpicStatus(Epic epic) {
     Set<Integer> subTaskIds = epic.getSubTaskIds();
     if (!subTaskIds.isEmpty()) {
@@ -234,5 +254,13 @@ public class InMemoryTaskManager implements TaskManager {
     } else {
       epic.setStatus(TaskStatus.NEW);
     }
+  }
+
+  private void addTaskToViewHistory(int taskId){
+    taskViewHistory.add(taskId);
+  }
+
+  private boolean isTaskExist(int taskId){
+    return tasksById.containsKey(taskId);
   }
 }
