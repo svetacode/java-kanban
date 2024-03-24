@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -37,8 +38,8 @@ public class TestHistoryManager {
     int subTask1Id = taskManager.createSubTask(epicSubTask);
     SubTask subTask = taskManager.getSubTaskById(subTask1Id);
 
-
-
+    List<Task> taskList = historyManager.getViewHistory();
+    assertEquals(3, taskList.size());
   }
 
 }
