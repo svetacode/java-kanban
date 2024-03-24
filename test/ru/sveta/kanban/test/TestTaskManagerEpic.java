@@ -100,14 +100,23 @@ public class TestTaskManagerEpic {
     int subTask2Id = taskManager.createSubTask(epic1SubTask2);
 
     createdEpic = taskManager.getEpicById(epicId);
+    SubTask subTaskCreated1 = taskManager.getSubTaskById(subTask1Id);
     assertNotNull(createdEpic);
-    assertNotNull(taskManager.getSubTaskById(subTask1Id));
+    assertNotNull(subTaskCreated1);
     assertNotNull(taskManager.getSubTaskById(subTask2Id));
 
     Set<SubTask> subTaskSet = taskManager.getEpicSubTasksByEpicId(epicId);
     assertEquals(2, subTaskSet.size());
 
     assertEquals(TaskStatus.IN_PROGRESS, createdEpic.getStatus());
+
+    assertAll("SubTask Data",
+        () -> assertEquals(TaskType.SUB_TASK, subTaskCreated1.getTaskType()),
+        () -> assertEquals(subTask1Id, subTaskCreated1.getId()),
+        () -> assertEquals(TaskStatus.NEW, subTaskCreated1.getStatus()),
+        () -> assertEquals(epic1SubTask1.getTitle(), subTaskCreated1.getTitle()),
+        () -> assertEquals(epic1SubTask1.getDescription(), subTaskCreated1.getDescription())
+    );
 
   }
 
