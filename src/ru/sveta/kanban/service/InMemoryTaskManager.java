@@ -3,8 +3,6 @@ package ru.sveta.kanban.service;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import ru.sveta.kanban.task.Epic;
@@ -15,16 +13,14 @@ import ru.sveta.kanban.task.TaskType;
 
 public class InMemoryTaskManager implements TaskManager {
 
+  private final HistoryManager historyManager;
+  private final Map<Integer, Task> tasksById;
   private int nextTaskId;
 
-  private final Map<Integer, Task> tasksById;
-
-  private final LinkedList<Integer> taskViewHistory;
-
-  public InMemoryTaskManager() {
+  public InMemoryTaskManager(HistoryManager historyManager) {
     tasksById = new HashMap<>();
     nextTaskId = 1;
-    taskViewHistory = new LinkedList<>();
+    this.historyManager = historyManager;
   }
 
   /**
@@ -46,29 +42,24 @@ public class InMemoryTaskManager implements TaskManager {
 
   @Override
   public Task getTaskById(int taskId) {
-    if (isTaskExist(taskId)){
-      addTaskToViewHistory(taskId);
-      return tasksById.get(taskId);
-    } else {
-      return null;
-    }
+    return getTask(taskId, Task.class);
   }
 
   @Override
   public SubTask getSubTaskById(int subTaskId) {
-    if (isTaskExist(subTaskId)){
-      addTaskToViewHistory(subTaskId);
-      return (SubTask)tasksById.get(subTaskId);
-    } else {
-      return null;
-    }
+    return getTask(subTaskId, SubTask.class);
   }
 
   @Override
   public Epic getEpicById(int epicId) {
-    if (isTaskExist(epicId)){
-      addTaskToViewHistory(epicId);
-      return (Epic)tasksById.get(epicId);
+    return getTask(epicId, Epic.class);
+  }
+
+  private <T extends Task> T getTask(Integer taskId, Class<T> taskClass) {
+    if (isTaskExist(taskId)) {
+      T task = (T) tasksById.get(taskId);
+      addTaskToViewHistory(task);
+      return task;
     } else {
       return null;
     }
@@ -97,7 +88,7 @@ public class InMemoryTaskManager implements TaskManager {
   @Override
   public int createSubTask(SubTask newSubTask) {
     if (tasksById.containsKey(newSubTask.getEpicId())) {
-      Epic epic = (Epic)tasksById.get(newSubTask.getEpicId());
+      Epic epic = (Epic) tasksById.get(newSubTask.getEpicId());
       newSubTask.setId(nextTaskId);
       nextTaskId++;
 
@@ -121,9 +112,9 @@ public class InMemoryTaskManager implements TaskManager {
   public void deleteAllTaskByType(TaskType taskType) {
     for (Task task : tasksById.values()) {
       if (task.getTaskType().equals(taskType)) {
-        if (task.getTaskType().equals(TaskType.EPIC)){
+        if (task.getTaskType().equals(TaskType.EPIC)) {
           // Надо удалить все подзадачи
-          Epic epic = (Epic)task;
+          Epic epic = (Epic) task;
           Set<Integer> subtaskIds = epic.getSubTaskIds();
           for (Integer subtaskId : subtaskIds) {
             tasksById.remove(subtaskId);
@@ -138,7 +129,7 @@ public class InMemoryTaskManager implements TaskManager {
    * Удаление задач по типу задачи и ее идентификатору
    *
    * @param taskType тип задач для удаления
-   * @param taskId   идентификатор задачи для удаления
+   * @param taskId идентификатор задачи для удаления
    */
   @Override
   public void deleteTaskByTypeAndId(TaskType taskType, int taskId) {
@@ -160,7 +151,7 @@ public class InMemoryTaskManager implements TaskManager {
         case SUB_TASK -> {
           SubTask subTask = (SubTask) task;
           Integer epicId = subTask.getEpicId();
-          Epic epic = (Epic)tasksById.get(epicId);
+          Epic epic = (Epic) tasksById.get(epicId);
           epic.removeSubTask(subTask);
           updateEpicStatus(epic);
           tasksById.remove(taskId);
@@ -179,30 +170,26 @@ public class InMemoryTaskManager implements TaskManager {
 
   /**
    * Не учтена логика, когда подзадача переносится в другой эпик.
-   *
-   * @param subTask
    */
   @Override
   public void updateSubTask(SubTask subTask) {
     if (
         (tasksById.containsKey(subTask.getId())) &&
-        ((SubTask)tasksById.get(subTask.getId())).getEpicId().equals(subTask.getEpicId())
-    ){
+        ((SubTask) tasksById.get(subTask.getId())).getEpicId().equals(subTask.getEpicId())
+    ) {
       tasksById.put(subTask.getId(), subTask);
-      Epic epic = (Epic)tasksById.get(subTask.getEpicId());
+      Epic epic = (Epic) tasksById.get(subTask.getEpicId());
       updateEpicStatus(epic);
     }
   }
 
   /**
    * Считаем, что мы не обновляем подзадачи (не добавляем и не удаляем), а только атрибуты самого эпика
-   *
-   * @param epic
    */
   @Override
   public void updateEpic(Epic epic) {
     if (tasksById.containsKey(epic.getId())) {
-      Epic epicOld = (Epic)tasksById.get(epic.getId());
+      Epic epicOld = (Epic) tasksById.get(epic.getId());
       epicOld.setDescription(epic.getDescription());
       epicOld.setTitle(epic.getTitle());
     }
@@ -214,20 +201,12 @@ public class InMemoryTaskManager implements TaskManager {
       Set<Integer> subTaskIds = ((Epic) tasksById.get(epicId)).getSubTaskIds();
       Set<SubTask> subTasks = new HashSet<>();
       for (Integer subTaskId : subTaskIds) {
-        subTasks.add((SubTask)tasksById.get(subTaskId));
+        subTasks.add((SubTask) tasksById.get(subTaskId));
       }
       return subTasks;
     } else {
       return Collections.emptySet();
     }
-  }
-
-  @Override
-  public List<Task> getViewHistory() {
-    return taskViewHistory.stream()
-        .limit(10)
-        .map(tasksById::get)
-        .toList();
   }
 
   @Override
@@ -256,11 +235,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
   }
 
-  private void addTaskToViewHistory(int taskId){
-    taskViewHistory.add(taskId);
+  private void addTaskToViewHistory(Task task) {
+    historyManager.add(task);
   }
 
-  private boolean isTaskExist(int taskId){
+  private boolean isTaskExist(int taskId) {
     return tasksById.containsKey(taskId);
   }
 }

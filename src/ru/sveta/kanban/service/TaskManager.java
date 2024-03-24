@@ -42,9 +42,4 @@ public interface TaskManager {
 
   Set<SubTask> getEpicSubTasksByEpicId(int epicId);
 
-  /**
-   * История просмотр задач
-   * @return возвращает последние 10 просмотренных задачи
-   */
-  List<Task> getViewHistory();
 }
