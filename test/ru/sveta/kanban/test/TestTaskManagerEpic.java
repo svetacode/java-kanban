@@ -48,7 +48,7 @@ public class TestTaskManagerEpic {
 
     Epic task = new Epic("Эпик 1", "Описание Эпика 1");
     int createdTaskId = taskManager.createEpic(task);
-    Task createdTask = taskManager.getTaskById(createdTaskId);
+    Epic createdTask = taskManager.getEpicById(createdTaskId);
     createdTask.setTitle("обновление название");
     createdTask.setDescription("обновление описания");
 

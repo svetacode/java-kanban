@@ -56,10 +56,15 @@ public class InMemoryTaskManager implements TaskManager {
   }
 
   private <T extends Task> T getTask(Integer taskId, Class<T> taskClass) {
-    if (isTaskExist(taskId)) {
-      T task = (T) tasksById.get(taskId);
-      addTaskToViewHistory(task);
-      return task;
+    if (tasksById.get(taskId) != null) {
+      Object sourceTask = tasksById.get(taskId);
+      if (sourceTask.getClass().equals(taskClass)) {
+        T task = taskClass.cast(sourceTask);
+        addTaskToViewHistory(task);
+        return task;
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
@@ -243,7 +248,4 @@ public class InMemoryTaskManager implements TaskManager {
     historyManager.add(task);
   }
 
-  private boolean isTaskExist(int taskId) {
-    return tasksById.containsKey(taskId);
-  }
 }

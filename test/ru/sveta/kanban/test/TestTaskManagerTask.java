@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import ru.sveta.kanban.service.Managers;
 import ru.sveta.kanban.service.TaskManager;
+import ru.sveta.kanban.task.Epic;
 import ru.sveta.kanban.task.Task;
 import ru.sveta.kanban.task.TaskStatus;
 import ru.sveta.kanban.task.TaskType;
@@ -77,6 +78,26 @@ public class TestTaskManagerTask {
 
     Task deletedTask = taskManager.getTaskById(createdTask.getId());
     assertNull(deletedTask);
+  }
+
+  @Test()
+  @Order(3)
+  @DisplayName("Проверка TaskManager - получение ошибочного Task по идентификатору Epic")
+  public void testGetTaskByEpicId() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
+
+    Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
+    int createdTaskId = taskManager.createTask(task);
+    Task createdTask = taskManager.getTaskById(createdTaskId);
+    assertNotNull(createdTask);
+
+    Epic epic1 = new Epic("Эпик 1", "Описание Эпика 1");
+    int epicId = taskManager.createEpic(epic1);
+    Epic createdEpic = taskManager.getEpicById(epicId);
+    assertEquals(TaskStatus.NEW, createdEpic.getStatus());
+
+    Task wrongTask = taskManager.getTaskById(createdEpic.getId());
+    assertNull(wrongTask);
   }
 
 }
