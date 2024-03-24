@@ -145,4 +145,37 @@ public class TestTaskManagerEpic {
 
   }
 
+  @Test()
+  @Order(6)
+  @DisplayName("Проверка TaskManager - удаление подзадач из Epic")
+  public void testRemoveSubTaskFromEpic() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
+
+    Epic epic1 = new Epic("Эпик 1", "Описание Эпика 1");
+    int epicId = taskManager.createEpic(epic1);
+    Epic createdEpic = taskManager.getEpicById(epicId);
+    assertEquals(TaskStatus.NEW, createdEpic.getStatus());
+
+    SubTask epic1SubTask1 = new SubTask("Подзадача 1.1", "Описание подзадачи 1.1", TaskStatus.NEW, epic1.getId());
+    int subTask1Id = taskManager.createSubTask(epic1SubTask1);
+    SubTask epic1SubTask2 = new SubTask("Подзадача 1.2", "Описание подзадачи 1.2", TaskStatus.DONE, epic1.getId());
+    int subTask2Id = taskManager.createSubTask(epic1SubTask2);
+
+    createdEpic = taskManager.getEpicById(epicId);
+    Set<SubTask> subTaskSet = taskManager.getEpicSubTasksByEpicId(epicId);
+    assertEquals(2, subTaskSet.size());
+    assertEquals(TaskStatus.IN_PROGRESS, createdEpic.getStatus());
+
+    SubTask subTaskCreated1 = taskManager.getSubTaskById(subTask1Id);
+    assertNotNull(subTaskCreated1);
+
+    taskManager.deleteTaskByTypeAndId(TaskType.SUB_TASK, subTask1Id);
+
+    subTaskCreated1 = taskManager.getSubTaskById(subTask1Id);
+    assertNull(subTaskCreated1);
+
+    subTaskSet = taskManager.getEpicSubTasksByEpicId(epicId);
+    assertEquals(1, subTaskSet.size());
+  }
+
 }
