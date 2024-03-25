@@ -4,11 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import ru.sveta.kanban.task.Task;
 
-/**
- * @author m.gromov
- * @version 1.0
- * @since 1.0.0
- */
 public class InMemoryHistoryManager implements HistoryManager {
 
   /**

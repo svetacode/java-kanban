@@ -7,11 +7,6 @@ import ru.sveta.kanban.task.SubTask;
 import ru.sveta.kanban.task.Task;
 import ru.sveta.kanban.task.TaskType;
 
-/**
- * @author m.gromov
- * @version 1.0
- * @since 1.0.0
- */
 public interface TaskManager {
 
   Set<Task> getTaskListByType(TaskType taskType);
