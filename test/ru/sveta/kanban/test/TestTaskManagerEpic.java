@@ -176,6 +176,10 @@ public class TestTaskManagerEpic {
 
     subTaskSet = taskManager.getEpicSubTasksByEpicId(epicId);
     assertEquals(1, subTaskSet.size());
+
+    taskManager.deleteTaskByTypeAndId(TaskType.SUB_TASK, subTask2Id);
+    createdEpic = taskManager.getEpicById(epicId);
+    assertEquals(TaskStatus.NEW, createdEpic.getStatus());
   }
 
 }

@@ -23,9 +23,13 @@ public interface TaskManager {
 
   int createSubTask(SubTask newSubTask);
 
-  void deleteAllTaskByType(TaskType taskType);
-
   void updateEpicStatus(Epic epic);
+
+  void deleteAllTask();
+
+  void deleteAllEpic();
+
+  void deleteAllSubTask();
 
   void deleteTaskByTypeAndId(TaskType taskType, int taskId);
 
@@ -36,5 +40,7 @@ public interface TaskManager {
   void updateEpic(Epic epic);
 
   Set<SubTask> getEpicSubTasksByEpicId(int epicId);
+
+  List<Task> getViewHistory();
 
 }

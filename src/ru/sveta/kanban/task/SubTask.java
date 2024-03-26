@@ -2,7 +2,7 @@ package ru.sveta.kanban.task;
 
 public class SubTask extends Task{
 
-    private Integer epicId;
+    private final Integer epicId;
 
     public SubTask(String title, String description, TaskStatus status, Integer epicId) {
         super(title, description, status);

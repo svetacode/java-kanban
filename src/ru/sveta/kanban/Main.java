@@ -1,6 +1,8 @@
 package ru.sveta.kanban;
 
 import java.util.Collection;
+import java.util.List;
+
 import ru.sveta.kanban.service.HistoryManager;
 import ru.sveta.kanban.service.Managers;
 import ru.sveta.kanban.service.TaskManager;
@@ -13,13 +15,12 @@ import ru.sveta.kanban.task.TaskType;
 public class Main {
 
     public static void main(String[] args) {
-        HistoryManager historyManager = Managers.getDefaultHistoryManager();
-        TaskManager taskManager = Managers.getDefaultTaskManager(historyManager);
+        TaskManager taskManager = Managers.getDefaultTaskManager();
         System.out.println("Поехали!");
-        testTaskManager(taskManager, historyManager);
+        testTaskManager(taskManager);
     }
 
-    private static void testTaskManager(TaskManager taskManager, HistoryManager historyManager) {
+    private static void testTaskManager(TaskManager taskManager) {
         Task task1 = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
         taskManager.createTask(task1);
         taskManager.getTaskById(task1.getId());
@@ -63,7 +64,7 @@ public class Main {
 
         printAllTasks(taskManager);
 
-        printTaskHistory(historyManager);
+        printTaskHistory(taskManager.getViewHistory());
     }
 
     private static void printAllTasks(TaskManager taskManager) {
@@ -86,9 +87,9 @@ public class Main {
         }
     }
 
-    private static void printTaskHistory(HistoryManager historyManager) {
+    private static void printTaskHistory(List<Task> taskList) {
         System.out.println("Список просмотренных задач:");
-        printTaskList(historyManager.getViewHistory());
+        printTaskList(taskList);
     }
 }
 

@@ -1,15 +1,19 @@
 package ru.sveta.kanban.service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import ru.sveta.kanban.task.Epic;
 import ru.sveta.kanban.task.SubTask;
 import ru.sveta.kanban.task.Task;
 import ru.sveta.kanban.task.TaskStatus;
 import ru.sveta.kanban.task.TaskType;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -17,10 +21,10 @@ public class InMemoryTaskManager implements TaskManager {
   private final Map<Integer, Task> tasksById;
   private int nextTaskId;
 
-  public InMemoryTaskManager(HistoryManager historyManager) {
+  public InMemoryTaskManager() {
     tasksById = new HashMap<>();
     nextTaskId = 1;
-    this.historyManager = historyManager;
+    this.historyManager = Managers.getDefaultHistoryManager();
   }
 
   /**
@@ -42,23 +46,23 @@ public class InMemoryTaskManager implements TaskManager {
 
   @Override
   public Task getTaskById(int taskId) {
-    return getTask(taskId, Task.class);
+    return getTask(taskId, Task.class, TaskType.TASK);
   }
 
   @Override
   public SubTask getSubTaskById(int subTaskId) {
-    return getTask(subTaskId, SubTask.class);
+    return getTask(subTaskId, SubTask.class, TaskType.SUB_TASK);
   }
 
   @Override
   public Epic getEpicById(int epicId) {
-    return getTask(epicId, Epic.class);
+    return getTask(epicId, Epic.class, TaskType.EPIC);
   }
 
-  private <T extends Task> T getTask(Integer taskId, Class<T> taskClass) {
+  private <T extends Task> T getTask(Integer taskId, Class<T> taskClass, TaskType taskType) {
     if (tasksById.get(taskId) != null) {
-      Object sourceTask = tasksById.get(taskId);
-      if (sourceTask.getClass().equals(taskClass)) {
+      Task sourceTask = tasksById.get(taskId);
+      if (sourceTask.getTaskType().equals(taskType)) {
         T task = taskClass.cast(sourceTask);
         addTaskToViewHistory(task);
         return task;
@@ -94,7 +98,9 @@ public class InMemoryTaskManager implements TaskManager {
   public int createSubTask(SubTask newSubTask) {
     if (tasksById.containsKey(newSubTask.getEpicId())) {
       // Проверяем что переданный идентификатор Эпика является именно эпиком и существует в системе
-      if ((tasksById.get(newSubTask.getEpicId()) != null) && (tasksById.get(newSubTask.getEpicId()) instanceof Epic epic)) {
+      Task task = tasksById.get(newSubTask.getEpicId());
+      if ((task != null) && (task.getTaskType().equals(TaskType.EPIC))) {
+        Epic epic = (Epic) task;
         newSubTask.setId(nextTaskId);
         nextTaskId++;
 
@@ -112,64 +118,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
   }
 
-  /**
-   * Удаление всех задач по типу
-   *
-   * @param taskType тип задач для удаления
-   */
-  @Override
-  public void deleteAllTaskByType(TaskType taskType) {
-    for (Task task : tasksById.values()) {
-      if (task.getTaskType().equals(taskType)) {
-        if (task.getTaskType().equals(TaskType.EPIC)) {
-          // Надо удалить все подзадачи
-          Epic epic = (Epic) task;
-          Set<Integer> subtaskIds = epic.getSubTaskIds();
-          for (Integer subtaskId : subtaskIds) {
-            tasksById.remove(subtaskId);
-          }
-        }
-        tasksById.remove(task.getId());
-      }
-    }
-  }
-
-  /**
-   * Удаление задач по типу задачи и ее идентификатору
-   *
-   * @param taskType тип задач для удаления
-   * @param taskId идентификатор задачи для удаления
-   */
-  @Override
-  public void deleteTaskByTypeAndId(TaskType taskType, int taskId) {
-    Task task = tasksById.get(taskId);
-    if (task != null) {
-      switch (taskType) {
-        case TASK -> {
-          tasksById.remove(taskId);
-        }
-        case EPIC -> {
-          //Для эпиков надо удалить все связанные подзадачи
-          Epic epic = (Epic) task;
-          Set<Integer> epicSubTasks = epic.getSubTaskIds();
-          for (Integer subTaskId : epicSubTasks) {
-            tasksById.remove(subTaskId);
-          }
-          tasksById.remove(taskId);
-        }
-        case SUB_TASK -> {
-          SubTask subTask = (SubTask) task;
-          Integer epicId = subTask.getEpicId();
-          Epic epic = (Epic) tasksById.get(epicId);
-          epic.removeSubTask(subTask);
-          updateEpicStatus(epic);
-          tasksById.remove(taskId);
-        }
-      }
-    }
-
-  }
-
   @Override
   public void updateTask(Task task) {
     if (tasksById.containsKey(task.getId())) {
@@ -184,7 +132,7 @@ public class InMemoryTaskManager implements TaskManager {
   public void updateSubTask(SubTask subTask) {
     if (
         (tasksById.containsKey(subTask.getId())) &&
-        ((SubTask) tasksById.get(subTask.getId())).getEpicId().equals(subTask.getEpicId())
+            ((SubTask) tasksById.get(subTask.getId())).getEpicId().equals(subTask.getEpicId())
     ) {
       tasksById.put(subTask.getId(), subTask);
       Epic epic = (Epic) tasksById.get(subTask.getEpicId());
@@ -244,8 +192,82 @@ public class InMemoryTaskManager implements TaskManager {
     }
   }
 
+  @Override
+  public void deleteAllTask() {
+    tasksById.values().stream()
+        .filter(task -> task.getTaskType().equals(TaskType.TASK))
+        .map(Task::getId)
+        .forEach(tasksById::remove);
+  }
+
+  @Override
+  public void deleteAllEpic() {
+    tasksById.values().stream()
+        .filter(task -> task.getTaskType().equals(TaskType.EPIC))
+        .map(task -> {
+          Epic epic = (Epic) task;
+          List<Integer> forRemove = new ArrayList<>(epic.getSubTaskIds());
+          forRemove.add(epic.getId());
+          return forRemove;
+        })
+        .flatMap(Collection::stream)
+        .forEach(tasksById::remove);
+  }
+
+  @Override
+  public void deleteAllSubTask() {
+    tasksById.values().stream()
+        .filter(task -> task.getTaskType().equals(TaskType.SUB_TASK))
+        .peek(task -> {
+          SubTask subTask = (SubTask) task;
+          Epic epic = getEpicById(subTask.getEpicId());
+          updateEpicStatus(epic);
+        })
+        .map(Task::getId)
+        .forEach(tasksById::remove);
+  }
+
   private void addTaskToViewHistory(Task task) {
     historyManager.add(task);
   }
 
+  /**
+   * Удаление задач по типу задачи и ее идентификатору
+   *
+   * @param taskType тип задач для удаления
+   * @param taskId идентификатор задачи для удаления
+   */
+  @Override
+  public void deleteTaskByTypeAndId(TaskType taskType, int taskId) {
+    Task task = tasksById.get(taskId);
+    if (task != null) {
+      switch (taskType) {
+        case TASK -> {
+          tasksById.remove(taskId);
+        }
+        case EPIC -> {
+          //Для эпиков надо удалить все связанные подзадачи
+          Epic epic = (Epic) task;
+          Set<Integer> epicSubTasks = epic.getSubTaskIds();
+          for (Integer subTaskId : epicSubTasks) {
+            tasksById.remove(subTaskId);
+          }
+          tasksById.remove(taskId);
+        }
+        case SUB_TASK -> {
+          SubTask subTask = (SubTask) task;
+          Integer epicId = subTask.getEpicId();
+          Epic epic = (Epic) tasksById.get(epicId);
+          epic.removeSubTask(subTask);
+          updateEpicStatus(epic);
+          tasksById.remove(taskId);
+        }
+      }
+    }
+  }
+
+  @Override
+  public List<Task> getViewHistory() {
+    return historyManager.getViewHistory();
+  }
 }

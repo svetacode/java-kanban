@@ -22,8 +22,7 @@ public class TestHistoryManager {
   @Order(1)
   @DisplayName("Проверка HistoryManager")
   public void testHistoryManager() {
-    HistoryManager historyManager = Managers.getDefaultHistoryManager();
-    TaskManager taskManager = Managers.getDefaultTaskManager(historyManager);
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -37,7 +36,7 @@ public class TestHistoryManager {
     int subTask1Id = taskManager.createSubTask(epicSubTask);
     SubTask subTask = taskManager.getSubTaskById(subTask1Id);
 
-    List<Task> taskList = historyManager.getViewHistory();
+    List<Task> taskList = taskManager.getViewHistory();
     assertEquals(3, taskList.size());
   }
 
@@ -45,8 +44,7 @@ public class TestHistoryManager {
   @Order(2)
   @DisplayName("Проверка HistoryManager - сохранение просмотренных версий")
   public void testHistoryManagerSaveHistoryObjects() {
-    HistoryManager historyManager = Managers.getDefaultHistoryManager();
-    TaskManager taskManager = Managers.getDefaultTaskManager(historyManager);
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -60,7 +58,7 @@ public class TestHistoryManager {
     int subTask1Id = taskManager.createSubTask(epicSubTask);
     SubTask subTask = taskManager.getSubTaskById(subTask1Id);
 
-    List<Task> taskList = historyManager.getViewHistory();
+    List<Task> taskList = taskManager.getViewHistory();
     assertEquals(3, taskList.size());
 
     createdTask.setTitle("обновление название");
@@ -69,7 +67,7 @@ public class TestHistoryManager {
 
     taskManager.deleteTaskByTypeAndId(TaskType.SUB_TASK, subTask.getId());
 
-    taskList = historyManager.getViewHistory();
+    taskList = taskManager.getViewHistory();
     assertEquals(3, taskList.size());
 
     Task taskFromHistory = taskList.get(0);
