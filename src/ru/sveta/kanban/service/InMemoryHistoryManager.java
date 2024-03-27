@@ -6,6 +6,8 @@ import ru.sveta.kanban.task.Task;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
+  private static final int HISTORY_MAX_SIZE = 10;
+
   /**
    * Исходя из ТЗ в будущем тут можно использовать TreeSet
    */
@@ -24,7 +26,7 @@ public class InMemoryHistoryManager implements HistoryManager {
   @Override
   public List<Task> getViewHistory() {
     return taskViewHistory.stream()
-        .limit(10)
+        .limit(HISTORY_MAX_SIZE)
         .toList();
   }
 }
