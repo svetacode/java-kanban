@@ -23,4 +23,9 @@ public interface HistoryManager {
   List<Task> getViewHistory();
 
 
+  /**
+   * Удаление задачи из списка просмотренных.
+   * @param taskId идентификатор задачи
+   */
+  void remove(int taskId);
 }
