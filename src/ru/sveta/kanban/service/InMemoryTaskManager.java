@@ -197,7 +197,10 @@ public class InMemoryTaskManager implements TaskManager {
     tasksById.values().stream()
         .filter(task -> task.getTaskType().equals(TaskType.TASK))
         .map(Task::getId)
-        .forEach(tasksById::remove);
+        .forEach(taskId -> {
+          tasksById.remove(taskId);
+          historyManager.remove(taskId);
+        });
   }
 
   @Override
@@ -211,7 +214,10 @@ public class InMemoryTaskManager implements TaskManager {
           return forRemove;
         })
         .flatMap(Collection::stream)
-        .forEach(tasksById::remove);
+        .forEach(taskId -> {
+          tasksById.remove(taskId);
+          historyManager.remove(taskId);
+        });
   }
 
   @Override
@@ -224,7 +230,10 @@ public class InMemoryTaskManager implements TaskManager {
           updateEpicStatus(epic);
         })
         .map(Task::getId)
-        .forEach(tasksById::remove);
+        .forEach(taskId -> {
+          tasksById.remove(taskId);
+          historyManager.remove(taskId);
+        });
   }
 
   private void addTaskToViewHistory(Task task) {
@@ -244,6 +253,7 @@ public class InMemoryTaskManager implements TaskManager {
       switch (taskType) {
         case TASK -> {
           tasksById.remove(taskId);
+          historyManager.remove(taskId);
         }
         case EPIC -> {
           //Для эпиков надо удалить все связанные подзадачи
@@ -251,8 +261,10 @@ public class InMemoryTaskManager implements TaskManager {
           Set<Integer> epicSubTasks = epic.getSubTaskIds();
           for (Integer subTaskId : epicSubTasks) {
             tasksById.remove(subTaskId);
+            historyManager.remove(subTaskId);
           }
           tasksById.remove(taskId);
+          historyManager.remove(taskId);
         }
         case SUB_TASK -> {
           SubTask subTask = (SubTask) task;
@@ -261,6 +273,7 @@ public class InMemoryTaskManager implements TaskManager {
           epic.removeSubTask(subTask);
           updateEpicStatus(epic);
           tasksById.remove(taskId);
+          historyManager.remove(taskId);
         }
       }
     }

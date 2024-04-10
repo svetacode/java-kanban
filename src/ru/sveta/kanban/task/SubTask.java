@@ -1,6 +1,6 @@
 package ru.sveta.kanban.task;
 
-public class SubTask extends Task{
+public class SubTask extends Task {
 
     private final Integer epicId;
 
@@ -15,7 +15,7 @@ public class SubTask extends Task{
     }
 
     @Override
-    public TaskType getTaskType(){
+    public TaskType getTaskType() {
         return TaskType.SUB_TASK;
     }
 

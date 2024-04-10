@@ -3,7 +3,6 @@ package ru.sveta.kanban;
 import java.util.Collection;
 import java.util.List;
 
-import ru.sveta.kanban.service.HistoryManager;
 import ru.sveta.kanban.service.Managers;
 import ru.sveta.kanban.service.TaskManager;
 import ru.sveta.kanban.task.Epic;
@@ -77,7 +76,7 @@ public class Main {
     }
 
     private static void printTaskList(Collection<Task> taskListByType) {
-        for (Task task: taskListByType){
+        for (Task task: taskListByType) {
             System.out.printf("\t %s - %s - %s [%s] %n",
                     task.getId(),
                     task.getTitle(),
