@@ -17,12 +17,12 @@ import ru.sveta.kanban.task.TaskStatus;
 import ru.sveta.kanban.task.TaskType;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class TestHistoryManager {
+public class TestHistoryManager {
 
   @Test()
   @Order(1)
   @DisplayName("Проверка HistoryManager")
-  void testHistoryManager() {
+  public void testHistoryManager() {
     TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
@@ -48,7 +48,7 @@ class TestHistoryManager {
   @Test()
   @Order(2)
   @DisplayName("Проверка HistoryManager - обновление просмотра")
-  void testHistoryManager_UpdateView() {
+  public void testHistoryManager_UpdateView() {
     TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
@@ -78,7 +78,7 @@ class TestHistoryManager {
   @Test()
   @Order(3)
   @DisplayName("Проверка HistoryManager - удаление епика")
-  void testHistoryManager_DeleteEpic() {
+  public void testHistoryManager_DeleteEpic() {
     TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
@@ -107,7 +107,7 @@ class TestHistoryManager {
   @Test()
   @Order(4)
   @DisplayName("Проверка HistoryManager - проверка повторных просмотров епика")
-  void testHistoryManager_CheckView() {
+  public void testHistoryManager_CheckView() {
     TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);

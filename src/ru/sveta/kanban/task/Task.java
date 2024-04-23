@@ -14,15 +14,6 @@ public class Task {
         this.status = status;
     }
 
-    private Task(int id, String title, String description, TaskStatus status) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.status = status;
-    }
-
-    private Task() {}
-
     public TaskType getTaskType() {
         return TaskType.TASK;
     }
@@ -70,22 +61,5 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    /**
-     * Преобразуем задачу в формат CSV
-     * @return CSV-представление задачи
-     */
-    public String toCsvFormat(){
-        return String.format("%s,%s,%s,%s,%s\n", id, getTaskType(), title, status, description);
-    }
-
-    public static Task fromCsvFormat(String[] csv){
-        return new Task(
-            Integer.parseInt(csv[0]),
-            csv[2],
-            csv[4],
-            TaskStatus.valueOf(csv[3])
-        );
     }
 }
