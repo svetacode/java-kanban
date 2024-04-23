@@ -15,6 +15,15 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
+    public static SubTask fromCsvFormat(String[] csv) {
+        return new SubTask(
+            Integer.parseInt(csv[0]),
+            csv[2],
+            csv[4],
+            TaskStatus.valueOf(csv[3]),
+            Integer.parseInt(csv[5])
+        );
+    }
 
     public Integer getEpicId() {
         return epicId;
@@ -26,18 +35,8 @@ public class SubTask extends Task {
     }
 
     @Override
-    public String toCsvFormat(){
+    public String toCsvFormat() {
         return String.format("%s,%s,%s,%s,%s,%s\n", id, getTaskType(), title, status, description, epicId);
-    }
-
-    public static SubTask fromCsvFormat(String[] csv){
-        return new SubTask(
-            Integer.parseInt(csv[0]),
-            csv[2],
-            csv[4],
-            TaskStatus.valueOf(csv[3]),
-            Integer.parseInt(csv[5])
-        );
     }
 
 }
