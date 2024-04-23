@@ -16,6 +16,15 @@ public class Epic extends Task {
     setId(id);
   }
 
+  public static Epic fromCsvFormat(String[] csv) {
+    return new Epic(
+        Integer.parseInt(csv[0]),
+        csv[2],
+        csv[4],
+        TaskStatus.valueOf(csv[3])
+    );
+  }
+
   public Set<Integer> getSubTaskIds() {
     return subTaskIds;
   }
@@ -38,14 +47,5 @@ public class Epic extends Task {
   @Override
   public TaskType getTaskType() {
     return TaskType.EPIC;
-  }
-
-  public static Epic fromCsvFormat(String[] csv){
-    return new Epic(
-        Integer.parseInt(csv[0]),
-        csv[2],
-        csv[4],
-        TaskStatus.valueOf(csv[3])
-    );
   }
 }
