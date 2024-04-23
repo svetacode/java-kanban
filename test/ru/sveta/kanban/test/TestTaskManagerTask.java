@@ -15,17 +15,13 @@ import ru.sveta.kanban.task.Task;
 import ru.sveta.kanban.task.TaskStatus;
 import ru.sveta.kanban.task.TaskType;
 
-class TestTaskManagerTask {
-
-  protected TaskManager getTaskManager() {
-    return Managers.getDefaultTaskManager();
-  }
+public class TestTaskManagerTask {
 
   @Test()
   @Order(1)
   @DisplayName("Проверка TaskManager - создание Task")
-  void testTaskCreate() {
-    TaskManager taskManager = getTaskManager();
+  public void testTaskCreate() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -44,8 +40,8 @@ class TestTaskManagerTask {
   @Test()
   @Order(2)
   @DisplayName("Проверка TaskManager - обновление Task")
-  void testTaskUpdate() {
-    TaskManager taskManager = getTaskManager();
+  public void testTaskUpdate() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -70,8 +66,8 @@ class TestTaskManagerTask {
   @Test()
   @Order(3)
   @DisplayName("Проверка TaskManager - удаление Task")
-  void testTaskDelete() {
-    TaskManager taskManager = getTaskManager();
+  public void testTaskDelete() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -87,8 +83,8 @@ class TestTaskManagerTask {
   @Test()
   @Order(3)
   @DisplayName("Проверка TaskManager - получение ошибочного Task по идентификатору Epic")
-  void testGetTaskByEpicId() {
-    TaskManager taskManager = getTaskManager();
+  public void testGetTaskByEpicId() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
