@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -130,7 +129,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }).collect(Collectors.toMap(Task::getId, Function.identity())));
 
         // Обновляем следующий идентификатор для новых задач
-        tasksById.keySet().stream().max(Integer::compareTo).ifPresent(integer -> nextTaskId = integer + 1);;
+        tasksById.keySet().stream().max(Integer::compareTo).ifPresent(integer -> nextTaskId = integer + 1);
+        ;
       } catch (IOException error) {
         throw new StorageException("Error while read data from storage file:" + error.getMessage(), error);
       }
