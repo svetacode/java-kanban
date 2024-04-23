@@ -17,17 +17,13 @@ import ru.sveta.kanban.task.Task;
 import ru.sveta.kanban.task.TaskStatus;
 import ru.sveta.kanban.task.TaskType;
 
-class TestTaskManagerEpic {
-
-  protected TaskManager getTaskManager() {
-    return Managers.getDefaultTaskManager();
-  }
+public class TestTaskManagerEpic {
 
   @Test()
   @Order(1)
   @DisplayName("Проверка TaskManager - создание Epic")
-  void testEpicCreate() {
-    TaskManager taskManager = getTaskManager();
+  public void testEpicCreate() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Epic task = new Epic("Эпик 1", "Описание Эпика 1");
 
@@ -47,8 +43,8 @@ class TestTaskManagerEpic {
   @Test()
   @Order(2)
   @DisplayName("Проверка TaskManager - обновление Epic")
-  void testEpicUpdate() {
-    TaskManager taskManager = getTaskManager();
+  public void testEpicUpdate() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Epic task = new Epic("Эпик 1", "Описание Эпика 1");
     int createdTaskId = taskManager.createEpic(task);
@@ -73,8 +69,8 @@ class TestTaskManagerEpic {
   @Test()
   @Order(3)
   @DisplayName("Проверка TaskManager - удаление Epic")
-  void testEpicDelete() {
-    TaskManager taskManager = getTaskManager();
+  public void testEpicDelete() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Epic task = new Epic("Эпик 1", "Описание Эпика 1");
     int createdTaskId = taskManager.createEpic(task);
@@ -90,8 +86,8 @@ class TestTaskManagerEpic {
   @Test()
   @Order(4)
   @DisplayName("Проверка TaskManager - создание Epic с подзадачами")
-  void testEpicCreateWithSubtasks() {
-    TaskManager taskManager = getTaskManager();
+  public void testEpicCreateWithSubtasks() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Epic epic1 = new Epic("Эпик 1", "Описание Эпика 1");
     int epicId = taskManager.createEpic(epic1);
@@ -127,8 +123,8 @@ class TestTaskManagerEpic {
   @Test()
   @Order(5)
   @DisplayName("Проверка TaskManager - создание Epic с кривыми подзадачами")
-  void testEpicCreateWithWrongSubtasks() {
-    TaskManager taskManager = getTaskManager();
+  public void testEpicCreateWithWrongSubtasks() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -152,8 +148,8 @@ class TestTaskManagerEpic {
   @Test()
   @Order(6)
   @DisplayName("Проверка TaskManager - удаление подзадач из Epic")
-  void testRemoveSubTaskFromEpic() {
-    TaskManager taskManager = getTaskManager();
+  public void testRemoveSubTaskFromEpic() {
+    TaskManager taskManager = Managers.getDefaultTaskManager();
 
     Epic epic1 = new Epic("Эпик 1", "Описание Эпика 1");
     int epicId = taskManager.createEpic(epic1);
