@@ -15,13 +15,17 @@ import ru.sveta.kanban.task.Task;
 import ru.sveta.kanban.task.TaskStatus;
 import ru.sveta.kanban.task.TaskType;
 
-public class TestTaskManagerTask {
+class TestTaskManagerTask {
+
+  protected TaskManager getTaskManager() {
+    return Managers.getDefaultTaskManager();
+  }
 
   @Test()
   @Order(1)
   @DisplayName("Проверка TaskManager - создание Task")
-  public void testTaskCreate() {
-    TaskManager taskManager = Managers.getDefaultTaskManager();
+  void testTaskCreate() {
+    TaskManager taskManager = getTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -40,8 +44,8 @@ public class TestTaskManagerTask {
   @Test()
   @Order(2)
   @DisplayName("Проверка TaskManager - обновление Task")
-  public void testTaskUpdate() {
-    TaskManager taskManager = Managers.getDefaultTaskManager();
+  void testTaskUpdate() {
+    TaskManager taskManager = getTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -66,8 +70,8 @@ public class TestTaskManagerTask {
   @Test()
   @Order(3)
   @DisplayName("Проверка TaskManager - удаление Task")
-  public void testTaskDelete() {
-    TaskManager taskManager = Managers.getDefaultTaskManager();
+  void testTaskDelete() {
+    TaskManager taskManager = getTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);
@@ -83,8 +87,8 @@ public class TestTaskManagerTask {
   @Test()
   @Order(3)
   @DisplayName("Проверка TaskManager - получение ошибочного Task по идентификатору Epic")
-  public void testGetTaskByEpicId() {
-    TaskManager taskManager = Managers.getDefaultTaskManager();
+  void testGetTaskByEpicId() {
+    TaskManager taskManager = getTaskManager();
 
     Task task = new Task("Задача 1", "Описание задачи 1", TaskStatus.IN_PROGRESS);
     int createdTaskId = taskManager.createTask(task);

@@ -9,12 +9,12 @@ import ru.sveta.kanban.service.HistoryManager;
 import ru.sveta.kanban.service.Managers;
 import ru.sveta.kanban.service.TaskManager;
 
-public class TestManagers {
+class TestManagers {
 
   @Test()
   @Order(1)
   @DisplayName("Проверка Managers - TaskManager")
-  public void testDefaultTaskManager(){
+  void testDefaultTaskManager(){
     TaskManager taskManager = Managers.getDefaultTaskManager();
     assertNotNull(taskManager);
   }
@@ -22,7 +22,7 @@ public class TestManagers {
   @Test()
   @Order(2)
   @DisplayName("Проверка Managers - HistoryManager")
-  public void testDefaultHistoryManager(){
+  void testDefaultHistoryManager(){
     HistoryManager historyManager = Managers.getDefaultHistoryManager();
     assertNotNull(historyManager);
   }
