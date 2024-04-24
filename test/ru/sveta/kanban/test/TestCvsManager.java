@@ -8,7 +8,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import ru.sveta.kanban.service.HistoryManager;
 import ru.sveta.kanban.service.Managers;
 import ru.sveta.kanban.service.TaskManager;
 
@@ -31,7 +30,7 @@ class TestCvsManager {
     File dataFile = File.createTempFile("kanban-board-data", "csv");
     loadDataToFile(dataFile);
 
-    TaskManager taskManager = Managers.getCsvTaskManager(dataFile.getAbsolutePath());
+    TaskManager taskManager = Managers.getCsvTaskManagerAndLoadData(dataFile.getAbsolutePath());
     assertNotNull(taskManager);
 
     assertNotNull(taskManager.getTaskById(1));
