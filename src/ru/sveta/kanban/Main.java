@@ -2,7 +2,6 @@ package ru.sveta.kanban;
 
 import java.util.Collection;
 import java.util.List;
-
 import ru.sveta.kanban.service.Managers;
 import ru.sveta.kanban.service.TaskManager;
 import ru.sveta.kanban.task.Epic;
@@ -21,7 +20,7 @@ public class Main {
         TaskManager csvTaskManager = Managers.getCsvTaskManager("kanban-board.csv");
         testTaskManagerFileStorage(csvTaskManager);
 
-        TaskManager csvTaskManager2 = Managers.getCsvTaskManager("kanban-board.csv");
+        TaskManager csvTaskManager2 = Managers.getCsvTaskManagerAndLoadData("kanban-board.csv");
         testTaskManagerFileStorage2(csvTaskManager2);
     }
 
@@ -134,12 +133,12 @@ public class Main {
     }
 
     private static void printTaskList(Collection<Task> taskListByType) {
-        for (Task task: taskListByType) {
+        for (Task task : taskListByType) {
             System.out.printf("\t %s - %s - %s [%s] %n",
-                    task.getId(),
-                    task.getTitle(),
-                    task.getDescription(),
-                    task.getStatus()
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getStatus()
             );
         }
     }

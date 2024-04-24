@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import ru.sveta.kanban.exception.StorageException;
+import ru.sveta.kanban.exception.ManagerSaveException;
 import ru.sveta.kanban.task.Epic;
 import ru.sveta.kanban.task.SubTask;
 import ru.sveta.kanban.task.Task;
@@ -21,7 +21,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
   public FileBackedTaskManager(String storageFile) {
     super();
     this.storageFile = storageFile;
-    loadData();
+  }
+
+  /**
+   * Метод загрузки данных из файла
+   */
+  public static FileBackedTaskManager loadData(String storageFile) {
+    FileBackedTaskManager manager = new FileBackedTaskManager(storageFile);
+    manager.fillDataFromFile();
+    return manager;
   }
 
   @Override
@@ -96,23 +104,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
   /**
    * Сохраняем данные в файл.
    *
-   * @throws StorageException ошибка сохранения
+   * @throws ManagerSaveException ошибка сохранения
    */
-  private void saveToFile() throws StorageException {
+  private void saveToFile() throws ManagerSaveException {
     try (FileWriter csvWriter = new FileWriter(storageFile)) {
       csvWriter.append("id,type,name, status,description,epic\n");
       for (Task task : tasksById.values()) {
         csvWriter.append(task.toCsvFormat());
       }
     } catch (IOException error) {
-      throw new StorageException("Error while save data to storage file:" + error.getMessage(), error);
+      throw new ManagerSaveException("Error while save data to storage file:" + error.getMessage(), error);
     }
   }
 
-  /**
-   * Метод загрузки данных из файла
-   */
-  private void loadData() {
+  private void fillDataFromFile() {
     Path path = Paths.get(storageFile);
 
     if (path.toFile().exists()) {
@@ -129,10 +134,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }).collect(Collectors.toMap(Task::getId, Function.identity())));
 
         // Обновляем следующий идентификатор для новых задач
-        tasksById.keySet().stream().max(Integer::compareTo).ifPresent(integer -> nextTaskId = integer + 1);
-        ;
+        tasksById.keySet().stream()
+            .max(Integer::compareTo)
+            .ifPresent(integer -> nextTaskId = integer + 1);
       } catch (IOException error) {
-        throw new StorageException("Error while read data from storage file:" + error.getMessage(), error);
+        throw new ManagerSaveException("Error while read data from storage file:" + error.getMessage(), error);
       }
     }
   }
