@@ -13,4 +13,12 @@ public final class Managers {
     return new InMemoryTaskManager();
   }
 
+  public static TaskManager getCsvTaskManager(String storageFile) {
+    return new FileBackedTaskManager(storageFile);
+  }
+
+  public static TaskManager getCsvTaskManagerAndLoadData(String storageFile) {
+    return FileBackedTaskManager.loadData(storageFile);
+  }
+
 }

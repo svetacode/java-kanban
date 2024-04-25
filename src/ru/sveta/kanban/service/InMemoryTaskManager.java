@@ -18,8 +18,8 @@ import java.util.Set;
 public class InMemoryTaskManager implements TaskManager {
 
   private final HistoryManager historyManager;
-  private final Map<Integer, Task> tasksById;
-  private int nextTaskId;
+  protected final Map<Integer, Task> tasksById;
+  protected int nextTaskId;
 
   public InMemoryTaskManager() {
     tasksById = new HashMap<>();
